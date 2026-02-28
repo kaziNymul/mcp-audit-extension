@@ -15,6 +15,7 @@ import { logger } from './logger';
 import jwt from 'jsonwebtoken';
 import { getTelemetryReporter } from './telemetry';
 import { extensionEvents } from './events';
+import { getPIIDetector, PIIScanResult, buildViolationLogRecord } from './pii-detector';
 
 let toolCallCount : number = 0;
 
@@ -74,12 +75,134 @@ export function resetLogForwarders() {
 }
 
 export async function forwardLog(record: LogRecord) {
+    // ── Final safety net: scan and redact any PII from the log record before forwarding ──
+    // This ensures no confidential data ever reaches Splunk/SIEM even if scanning
+    // is only enabled for one direction or a new pattern is added.
+    const redactedRecord = redactRecordForLog(record);
+
     for (const forwarder of logForwarders) {
-        await forwarder.forward(record);
+        await forwarder.forward(redactedRecord);
     }
     
     toolCallCount++;
     getTelemetryReporter().sendTelemetryEvent('tappedToolCallCount', {}, { 'count': toolCallCount });
+}
+
+/**
+ * Scan a LogRecord's params and result fields for PII, and redact them
+ * before the record goes to any log forwarder (Splunk, Syslog, File).
+ * Only the fields that actually contain PII are replaced with a redaction marker.
+ */
+function redactRecordForLog(record: LogRecord): LogRecord {
+    const detector = getPIIDetector();
+    if (!detector.isEnabled()) {
+        return record;
+    }
+
+    const redacted = { ...record };
+
+    // Check params
+    if (redacted.params) {
+        const paramScan = detector.scanObject(redacted.params);
+        if (paramScan.hasPII) {
+            redacted.params = `[REDACTED — ${paramScan.summary}]`;
+        }
+    }
+
+    // Check result
+    if (redacted.result && typeof redacted.result !== 'string') {
+        const resultScan = detector.scanObject(redacted.result);
+        if (resultScan.hasPII) {
+            redacted.result = `[REDACTED — ${resultScan.summary}]`;
+        }
+    }
+
+    // Check error
+    if (redacted.error && typeof redacted.error !== 'string') {
+        const errorScan = detector.scanObject(redacted.error);
+        if (errorScan.hasPII) {
+            redacted.error = `[REDACTED — ${errorScan.summary}]`;
+        }
+    }
+
+    return redacted;
+}
+
+/**
+ * Forward a PII/GDPR violation event to all configured log forwarders.
+ * The violation record is sent as a special event with event_type = 'pii_gdpr_violation'.
+ */
+export async function forwardViolationLog(violationRecord: Record<string, unknown>) {
+    const wrappedRecord: LogRecord = {
+        toolName: violationRecord.toolName as string,
+        mcpServerName: violationRecord.mcpServerName as string,
+        agentId: violationRecord.agentId as string,
+        hostName: violationRecord.hostName as string,
+        ipAddress: violationRecord.ipAddress as string,
+        timestamp: violationRecord.timestamp as string,
+        result: violationRecord, // embed full violation data in result field
+    };
+    for (const forwarder of logForwarders) {
+        try {
+            await forwarder.forward(wrappedRecord);
+        } catch (err) {
+            logger.error('Failed to forward PII violation log', err);
+        }
+    }
+}
+
+/**
+ * Scan request parameters for PII/GDPR data. Returns scan result.
+ * If violations are found and blocking is enabled, the caller should
+ * prevent normal execution.
+ */
+export function scanRequestForPII(params: any, mcpServerName: string): PIIScanResult {
+    const detector = getPIIDetector();
+    if (!detector.shouldScanRequests()) {
+        return { hasPII: false, violations: [], shouldBlock: false, summary: '' };
+    }
+    const result = detector.scanObject(params);
+    if (result.hasPII) {
+        logger.warn(`[PII] Detected PII in REQUEST to ${mcpServerName}: ${result.summary}`);
+        if (detector.shouldLogViolations()) {
+            const violationRecord = buildViolationLogRecord(result, {
+                toolName: params?.name || 'unknown',
+                mcpServerName,
+                direction: 'request',
+                agentId: getAgentId() as string,
+                hostName,
+                ipAddress: getIpAddress(),
+            });
+            forwardViolationLog(violationRecord);
+        }
+    }
+    return result;
+}
+
+/**
+ * Scan response data for PII/GDPR data. Returns scan result.
+ */
+export function scanResponseForPII(result: any, toolName: string, mcpServerName: string): PIIScanResult {
+    const detector = getPIIDetector();
+    if (!detector.shouldScanResponses()) {
+        return { hasPII: false, violations: [], shouldBlock: false, summary: '' };
+    }
+    const scanResult = detector.scanObject(result);
+    if (scanResult.hasPII) {
+        logger.warn(`[PII] Detected PII in RESPONSE from ${mcpServerName}.${toolName}: ${scanResult.summary}`);
+        if (detector.shouldLogViolations()) {
+            const violationRecord = buildViolationLogRecord(scanResult, {
+                toolName,
+                mcpServerName,
+                direction: 'response',
+                agentId: getAgentId() as string,
+                hostName,
+                ipAddress: getIpAddress(),
+            });
+            forwardViolationLog(violationRecord);
+        }
+    }
+    return scanResult;
 }
 
 export function isForwarding(): boolean {
@@ -384,8 +507,44 @@ export class ToolTappingClient extends Client {
         | typeof CompatibilityCallToolResultSchema = CallToolResultSchema,
         options?: RequestOptions
     ) {
+        // ── PII/GDPR check on REQUEST parameters ──
+        const requestScan = scanRequestForPII(params.arguments, this.originalTargetName);
+        if (requestScan.shouldBlock) {
+            logger.warn(`[PII] BLOCKED tool call ${params.name} on ${this.originalTargetName} — PII detected in request parameters`);
+            // Return an error result instead of executing the actual tool
+            return {
+                content: [
+                    {
+                        type: 'text',
+                        text: `[MCP Audit] Tool call BLOCKED: PII/GDPR violation detected in request. ${requestScan.summary}`,
+                    },
+                ],
+                isError: true,
+            };
+        }
+
         // Perform the original functionality by running callTool of the super class.
         const result = await super.callTool(params, resultSchema, options);
+
+        // ── PII/GDPR check on RESPONSE data ──
+        const responseScan = scanResponseForPII(result, params.name, this.originalTargetName);
+        if (responseScan.shouldBlock) {
+            logger.warn(`[PII] BLOCKED response from ${this.originalTargetName}.${params.name} — PII detected in response data`);
+            // Log the original call but redact the result
+            const record: Partial<LogRecord> = populateCallRequestData(this.originalTargetName, params);
+            record.result = '[REDACTED — PII/GDPR violation detected in response]';
+            forwardLog(record as LogRecord);
+
+            return {
+                content: [
+                    {
+                        type: 'text',
+                        text: `[MCP Audit] Response BLOCKED: PII/GDPR violation detected in response data. ${responseScan.summary}`,
+                    },
+                ],
+                isError: true,
+            };
+        }
         
         const record: Partial<LogRecord> = populateCallRequestData(this.originalTargetName, params);
         fillResultData(result, record);

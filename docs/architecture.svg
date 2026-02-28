@@ -1,0 +1,190 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 720" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f0c29"/>
+      <stop offset="50%" style="stop-color:#302b63"/>
+      <stop offset="100%" style="stop-color:#24243e"/>
+    </linearGradient>
+    <linearGradient id="ideGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#007ACC"/>
+      <stop offset="100%" style="stop-color:#005A9E"/>
+    </linearGradient>
+    <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#e74c3c"/>
+      <stop offset="100%" style="stop-color:#c0392b"/>
+    </linearGradient>
+    <linearGradient id="scanGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#f39c12"/>
+      <stop offset="100%" style="stop-color:#e67e22"/>
+    </linearGradient>
+    <linearGradient id="mcpGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#27ae60"/>
+      <stop offset="100%" style="stop-color:#1e8449"/>
+    </linearGradient>
+    <linearGradient id="logGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#8e44ad"/>
+      <stop offset="100%" style="stop-color:#6c3483"/>
+    </linearGradient>
+    <linearGradient id="splunkGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#65A637"/>
+      <stop offset="100%" style="stop-color:#4A8C1C"/>
+    </linearGradient>
+    <filter id="shadow" x="-5%" y="-5%" width="115%" height="115%">
+      <feDropShadow dx="2" dy="3" stdDeviation="4" flood-color="#000" flood-opacity="0.4"/>
+    </filter>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <marker id="arrowWhite" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#ccc"/>
+    </marker>
+    <marker id="arrowRed" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#e74c3c"/>
+    </marker>
+    <marker id="arrowGreen" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#27ae60"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1100" height="720" fill="url(#bgGrad)" rx="16"/>
+
+  <!-- Title -->
+  <text x="550" y="42" text-anchor="middle" fill="#fff" font-size="22" font-weight="700" filter="url(#glow)">MCP Audit — PII/GDPR Data Protection Architecture</text>
+  <text x="550" y="62" text-anchor="middle" fill="#aaa" font-size="12">Zero-config confidential data blocking for VS Code MCP tool calls</text>
+
+  <!-- ===== ROW 1: IDE → Tapped Server → PII Scanner ===== -->
+
+  <!-- VS Code / IDE box -->
+  <rect x="30" y="100" width="160" height="90" rx="12" fill="url(#ideGrad)" filter="url(#shadow)"/>
+  <text x="110" y="135" text-anchor="middle" fill="#fff" font-size="15" font-weight="600">VS Code IDE</text>
+  <text x="110" y="155" text-anchor="middle" fill="#d4e6f7" font-size="11">GitHub Copilot</text>
+  <text x="110" y="172" text-anchor="middle" fill="#d4e6f7" font-size="11">MCP Tool Call</text>
+
+  <!-- Arrow: IDE → Tapped Server -->
+  <line x1="190" y1="145" x2="248" y2="145" stroke="#ccc" stroke-width="2.5" marker-end="url(#arrowWhite)"/>
+  <text x="219" y="137" text-anchor="middle" fill="#aaa" font-size="9">request</text>
+
+  <!-- Tapped MCP Server (mirror) -->
+  <rect x="258" y="100" width="170" height="90" rx="12" fill="#1a1a40" stroke="#007ACC" stroke-width="2" filter="url(#shadow)"/>
+  <text x="343" y="130" text-anchor="middle" fill="#79b8ff" font-size="13" font-weight="600">Tapped MCP Server</text>
+  <text x="343" y="148" text-anchor="middle" fill="#8899aa" font-size="10">stdio / HTTP proxy</text>
+  <text x="343" y="165" text-anchor="middle" fill="#8899aa" font-size="10">Intercepts all calls</text>
+  <text x="343" y="180" text-anchor="middle" fill="#556677" font-size="9">tap-local-mcp / tap-remote-mcp</text>
+
+  <!-- Arrow: Tapped Server → PII Scanner -->
+  <line x1="428" y1="145" x2="488" y2="145" stroke="#f39c12" stroke-width="2.5" marker-end="url(#arrowWhite)"/>
+  <text x="458" y="137" text-anchor="middle" fill="#f39c12" font-size="9">scan</text>
+
+  <!-- PII / GDPR Scanner -->
+  <rect x="498" y="85" width="200" height="120" rx="14" fill="url(#scanGrad)" filter="url(#shadow)"/>
+  <text x="598" y="112" text-anchor="middle" fill="#fff" font-size="14" font-weight="700">🛡 PII / GDPR Scanner</text>
+  <text x="598" y="132" text-anchor="middle" fill="#fff3e0" font-size="10">SSN • Credit Cards • Email</text>
+  <text x="598" y="147" text-anchor="middle" fill="#fff3e0" font-size="10">API Keys • Private Keys • JWT</text>
+  <text x="598" y="162" text-anchor="middle" fill="#fff3e0" font-size="10">GDPR: Health • Biometric • Race</text>
+  <text x="598" y="177" text-anchor="middle" fill="#fff3e0" font-size="10">AWS Secrets • GitHub Tokens</text>
+  <text x="598" y="195" text-anchor="middle" fill="#1a1a1a" font-size="9" font-weight="600">pii-detector.ts — 20+ patterns</text>
+
+  <!-- ===== DECISION DIAMOND ===== -->
+  <polygon points="598,230 648,270 598,310 548,270" fill="#1a1a40" stroke="#f1c40f" stroke-width="2" filter="url(#shadow)"/>
+  <text x="598" y="267" text-anchor="middle" fill="#f1c40f" font-size="11" font-weight="700">PII</text>
+  <text x="598" y="280" text-anchor="middle" fill="#f1c40f" font-size="11" font-weight="700">Found?</text>
+
+  <!-- Arrow: Scanner → Decision -->
+  <line x1="598" y1="205" x2="598" y2="228" stroke="#f39c12" stroke-width="2"/>
+
+  <!-- ===== LEFT BRANCH: BLOCKED ===== -->
+  <line x1="548" y1="270" x2="390" y2="270" stroke="#e74c3c" stroke-width="2.5" marker-end="url(#arrowRed)"/>
+  <text x="469" y="262" text-anchor="middle" fill="#e74c3c" font-size="10" font-weight="600">YES → BLOCKED</text>
+
+  <!-- Block response box -->
+  <rect x="220" y="240" width="170" height="65" rx="10" fill="url(#shieldGrad)" filter="url(#shadow)"/>
+  <text x="305" y="262" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">⛔ REQUEST BLOCKED</text>
+  <text x="305" y="279" text-anchor="middle" fill="#ffd5d5" font-size="10">Error returned to IDE</text>
+  <text x="305" y="294" text-anchor="middle" fill="#ffd5d5" font-size="10">Data NEVER reaches server</text>
+
+  <!-- Arrow: Block → Violation Log -->
+  <line x1="305" y1="305" x2="305" y2="350" stroke="#e74c3c" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arrowRed)"/>
+
+  <!-- Violation Log box -->
+  <rect x="230" y="355" width="150" height="50" rx="8" fill="#2d1a1a" stroke="#e74c3c" stroke-width="1.5"/>
+  <text x="305" y="376" text-anchor="middle" fill="#e74c3c" font-size="11" font-weight="600">Violation Log</text>
+  <text x="305" y="393" text-anchor="middle" fill="#cc7777" font-size="9">type, severity, patterns</text>
+
+  <!-- ===== RIGHT BRANCH: CLEAN ===== -->
+  <line x1="648" y1="270" x2="770" y2="270" stroke="#27ae60" stroke-width="2.5" marker-end="url(#arrowGreen)"/>
+  <text x="709" y="262" text-anchor="middle" fill="#27ae60" font-size="10" font-weight="600">NO → CLEAN</text>
+
+  <!-- Real MCP Server -->
+  <rect x="780" y="240" width="170" height="65" rx="12" fill="url(#mcpGrad)" filter="url(#shadow)"/>
+  <text x="865" y="264" text-anchor="middle" fill="#fff" font-size="14" font-weight="600">MCP Server</text>
+  <text x="865" y="282" text-anchor="middle" fill="#d5f5e3" font-size="10">Executes tool call</text>
+  <text x="865" y="296" text-anchor="middle" fill="#d5f5e3" font-size="10">Returns response</text>
+
+  <!-- Arrow: MCP Server → Response Scanner -->
+  <line x1="865" y1="305" x2="865" y2="345" stroke="#27ae60" stroke-width="2" marker-end="url(#arrowGreen)"/>
+  <text x="885" y="328" fill="#27ae60" font-size="9">response</text>
+
+  <!-- Response PII Scanner -->
+  <rect x="785" y="350" width="160" height="55" rx="10" fill="#3d2e0a" stroke="#f39c12" stroke-width="1.5"/>
+  <text x="865" y="372" text-anchor="middle" fill="#f39c12" font-size="12" font-weight="600">🔍 Response Scan</text>
+  <text x="865" y="390" text-anchor="middle" fill="#d4a017" font-size="10">PII in response? → Redact</text>
+
+  <!-- ===== ROW 3: Log Pipeline ===== -->
+
+  <!-- Arrow: Both paths converge to Log Forwarder -->
+  <line x1="305" y1="405" x2="305" y2="460" stroke="#8e44ad" stroke-width="2" marker-end="url(#arrowWhite)"/>
+  <line x1="865" y1="405" x2="865" y2="438" stroke="#8e44ad" stroke-width="2"/>
+  <line x1="865" y1="438" x2="620" y2="438" stroke="#8e44ad" stroke-width="2"/>
+  <line x1="620" y1="438" x2="620" y2="460" stroke="#8e44ad" stroke-width="2" marker-end="url(#arrowWhite)"/>
+
+  <!-- Redact Before Log -->
+  <rect x="400" y="460" width="440" height="55" rx="10" fill="url(#logGrad)" filter="url(#shadow)"/>
+  <text x="620" y="483" text-anchor="middle" fill="#fff" font-size="14" font-weight="700">🔒 redactRecordForLog() — Final Safety Net</text>
+  <text x="620" y="500" text-anchor="middle" fill="#e8d0f5" font-size="10">All PII stripped from params, results, errors BEFORE any log is forwarded</text>
+
+  <!-- Arrow: Redact → Forwarders -->
+  <line x1="620" y1="515" x2="620" y2="550" stroke="#8e44ad" stroke-width="2" marker-end="url(#arrowWhite)"/>
+
+  <!-- Forwarder Layer - 3 boxes -->
+  <!-- Splunk HEC -->
+  <rect x="100" y="560" width="220" height="80" rx="10" fill="url(#splunkGrad)" filter="url(#shadow)"/>
+  <text x="210" y="588" text-anchor="middle" fill="#fff" font-size="14" font-weight="700">Splunk HEC</text>
+  <text x="210" y="605" text-anchor="middle" fill="#e0f0d0" font-size="10">Token + Index (optional)</text>
+  <text x="210" y="620" text-anchor="middle" fill="#e0f0d0" font-size="10">sourcetype: mcp:tool_call</text>
+  <text x="210" y="635" text-anchor="middle" fill="#d0e8c0" font-size="9">No PII ever reaches Splunk</text>
+
+  <!-- Syslog / CEF -->
+  <rect x="380" y="560" width="200" height="80" rx="10" fill="#1a2d4a" stroke="#3498db" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="480" y="588" text-anchor="middle" fill="#3498db" font-size="14" font-weight="700">Syslog / CEF</text>
+  <text x="480" y="605" text-anchor="middle" fill="#7fb3d8" font-size="10">SIEM Integration</text>
+  <text x="480" y="622" text-anchor="middle" fill="#7fb3d8" font-size="10">RFC 5424 compliant</text>
+
+  <!-- File Log -->
+  <rect x="640" y="560" width="200" height="80" rx="10" fill="#2d2d1a" stroke="#f1c40f" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="740" y="588" text-anchor="middle" fill="#f1c40f" font-size="14" font-weight="700">File Logger</text>
+  <text x="740" y="605" text-anchor="middle" fill="#d4c36a" font-size="10">Auto-configured on install</text>
+  <text x="740" y="622" text-anchor="middle" fill="#d4c36a" font-size="10">VS Code log view panel</text>
+
+  <!-- Violation Index -->
+  <rect x="880" y="560" width="190" height="80" rx="10" fill="#3d1a1a" stroke="#e74c3c" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="975" y="585" text-anchor="middle" fill="#e74c3c" font-size="13" font-weight="700">Violation Index</text>
+  <text x="975" y="602" text-anchor="middle" fill="#cc8888" font-size="10">PII violation events</text>
+  <text x="975" y="618" text-anchor="middle" fill="#cc8888" font-size="10">Audit trail</text>
+  <text x="975" y="634" text-anchor="middle" fill="#cc8888" font-size="9">sourcetype: mcp:pii_violation</text>
+
+  <!-- Connecting lines to forwarders -->
+  <line x1="620" y1="550" x2="210" y2="560" stroke="#65A637" stroke-width="1.5"/>
+  <line x1="620" y1="550" x2="480" y2="560" stroke="#3498db" stroke-width="1.5"/>
+  <line x1="620" y1="550" x2="740" y2="560" stroke="#f1c40f" stroke-width="1.5"/>
+  <line x1="620" y1="550" x2="975" y2="560" stroke="#e74c3c" stroke-width="1.5"/>
+
+  <!-- Legend -->
+  <rect x="30" y="670" width="1040" height="38" rx="8" fill="#1a1a30" stroke="#555" stroke-width="0.5"/>
+  <circle cx="60" cy="689" r="6" fill="#27ae60"/><text x="72" y="693" fill="#aaa" font-size="10">Clean data flows</text>
+  <circle cx="200" cy="689" r="6" fill="#e74c3c"/><text x="212" y="693" fill="#aaa" font-size="10">PII blocked/redacted</text>
+  <circle cx="360" cy="689" r="6" fill="#f39c12"/><text x="372" y="693" fill="#aaa" font-size="10">PII scanning</text>
+  <circle cx="500" cy="689" r="6" fill="#8e44ad"/><text x="512" y="693" fill="#aaa" font-size="10">Log pipeline</text>
+  <text x="660" y="693" fill="#666" font-size="10">Auto-configured on install • Zero-config PII blocking • Splunk index optional</text>
+</svg>

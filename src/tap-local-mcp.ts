@@ -14,6 +14,7 @@ import { join as pathJoin } from 'path';
 import { initForwarding, ToolTappingClient } from './tap-services';
 import { getAgentId, getVSCodeFolder } from './metadata';
 import { logger } from './logger';
+import { initPIIDetector, PIIDetectorConfig } from './pii-detector';
 
 async function main() {
     // 1. Argument Parsing
@@ -76,6 +77,20 @@ async function main() {
     const forwarderConfig = JSON.parse(jsonContent)['mcpAudit.forwarders'];
 
     initForwarding(forwarderConfig, process.env.forwarderSecrets ? JSON.parse(process.env.forwarderSecrets) : {});
+
+    // Initialize PII/GDPR detector from settings file
+    const settingsJson = JSON.parse(jsonContent);
+    const piiConfig: Partial<PIIDetectorConfig> = {
+        enabled: settingsJson['mcpAudit.piiDetection.enabled'] ?? true,
+        blockOnDetection: settingsJson['mcpAudit.piiDetection.blockOnDetection'] ?? true,
+        scanRequests: settingsJson['mcpAudit.piiDetection.scanRequests'] ?? true,
+        scanResponses: settingsJson['mcpAudit.piiDetection.scanResponses'] ?? true,
+        blockingSeverity: settingsJson['mcpAudit.piiDetection.blockingSeverity'] ?? 'high',
+        excludePatterns: settingsJson['mcpAudit.piiDetection.excludePatterns'] ?? [],
+        gdprKeywordDetection: settingsJson['mcpAudit.piiDetection.gdprKeywordDetection'] ?? true,
+        logViolations: settingsJson['mcpAudit.piiDetection.logViolations'] ?? true,
+    };
+    initPIIDetector(piiConfig);
 
     let targetClientTransport: Transport;
     let childProc: ChildProcess | undefined;

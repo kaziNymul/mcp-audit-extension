@@ -13,6 +13,7 @@ import { DecryptError, InputVariableRetriever, VarRetrievalError } from './vscod
 import { logger, SUPPRESS_STDOUT_LOGS_ENV_VAR_NAME } from './logger';
 import { initializeTelemetry, getTelemetryReporter } from './telemetry';
 import { ToolCallLogProvider } from './view';
+import { initPIIDetector, PIIDetectorConfig } from './pii-detector';
 
 const INPUT_VARIABLE_REGEX: RegExp = /^\$\{input:(.*?)\}$/;
 const TAPPED_SERVER_SUFFIX = ' (tapped)';
@@ -36,6 +37,9 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     
     const secrets = await loadSecretsFromFile(context);
     initForwarding(getForwardersConfig(), secrets);
+
+    // Initialize PII/GDPR detector from configuration
+    initPIIDetectorFromConfig();
     
     const provider = new TapMcpServerDefinitionProvider(context);
     let disposable = vscode.lm.registerMcpServerDefinitionProvider(
@@ -57,6 +61,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
         const isTapConfigAffectedPromise = new Promise<boolean>(resolve => {
             if (event.affectsConfiguration('mcpAudit')) {
                 logger.info('Extension configuration change detected.');
+                // Re-initialize PII detector on config change
+                initPIIDetectorFromConfig();
                 const wasForwarding = isForwarding();
                 loadSecretsFromFile(context).then(secrets => {
                     initForwarding(getForwardersConfig(), secrets);
@@ -98,6 +104,27 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     logger.info('MCP Tap Extension active.');
 }
 
+/**
+ * Read PII detection settings from VS Code configuration and initialize the detector.
+ */
+function initPIIDetectorFromConfig(): void {
+    const config = vscode.workspace.getConfiguration('mcpAudit');
+
+    const piiConfig: Partial<PIIDetectorConfig> = {
+        enabled: config.get<boolean>('piiDetection.enabled', true),
+        blockOnDetection: config.get<boolean>('piiDetection.blockOnDetection', true),
+        scanRequests: config.get<boolean>('piiDetection.scanRequests', true),
+        scanResponses: config.get<boolean>('piiDetection.scanResponses', true),
+        blockingSeverity: config.get<'critical' | 'high' | 'medium' | 'low'>('piiDetection.blockingSeverity', 'high'),
+        excludePatterns: config.get<string[]>('piiDetection.excludePatterns', []),
+        gdprKeywordDetection: config.get<boolean>('piiDetection.gdprKeywordDetection', true),
+        logViolations: config.get<boolean>('piiDetection.logViolations', true),
+    };
+
+    initPIIDetector(piiConfig);
+    logger.info('PII/GDPR Detector configuration applied from settings.');
+}
+
 async function setupDefaultLogView(context: vscode.ExtensionContext) {
     const logFilePath = path.join(context.globalStorageUri.fsPath, 'mcp-tool-calls.log');
 
@@ -125,6 +152,37 @@ async function setupDefaultLogView(context: vscode.ExtensionContext) {
 
             logger.info("Setting up default logger on first activation");
         }
+
+        // Auto-configure PII/GDPR protection defaults so blocking works out of the box
+        // These are only set if the user hasn't already configured them
+        const piiSettings: Array<{ key: string; value: any }> = [
+            { key: 'piiDetection.enabled', value: true },
+            { key: 'piiDetection.blockOnDetection', value: true },
+            { key: 'piiDetection.scanRequests', value: true },
+            { key: 'piiDetection.scanResponses', value: true },
+            { key: 'piiDetection.blockingSeverity', value: 'high' },
+            { key: 'piiDetection.gdprKeywordDetection', value: true },
+            { key: 'piiDetection.logViolations', value: true },
+        ];
+
+        for (const { key, value } of piiSettings) {
+            const inspect = config.inspect(key);
+            if (inspect?.globalValue === undefined && inspect?.workspaceValue === undefined) {
+                await config.update(key, value, vscode.ConfigurationTarget.Global);
+            }
+        }
+
+        logger.info('Auto-configured PII/GDPR protection defaults. Blocking is ACTIVE.');
+
+        // Show a welcome notification so the user knows PII blocking is active
+        vscode.window.showInformationMessage(
+            'MCP Audit: PII/GDPR protection is now ACTIVE. All MCP tool calls are being scanned and confidential data will be blocked automatically. Configure Splunk HEC in settings if needed.',
+            'Open Settings'
+        ).then(selection => {
+            if (selection === 'Open Settings') {
+                vscode.commands.executeCommand('workbench.action.openSettings', 'mcpAudit');
+            }
+        });
     }
     
     // Register the command that opens the log data
@@ -216,10 +274,13 @@ class TapMcpServerDefinitionProvider implements vscode.McpServerDefinitionProvid
     */
     async provideMcpServerDefinitions(_token: vscode.CancellationToken): 
         Promise<vscode.McpServerDefinition[]> {
-        if (!isForwarding()) {
-            // Do not provide tapped MCP servers because there are no log forwarders, no reason
-            // to set up tap
-            logger.warn('No forwarders were loaded, extension will not tap MCP servers');
+        const piiConfig = vscode.workspace.getConfiguration('mcpAudit.piiDetection');
+        const piiEnabled = piiConfig.get<boolean>('enabled', true);
+        
+        if (!isForwarding() && !piiEnabled) {
+            // Do not provide tapped MCP servers because there are no log forwarders
+            // AND PII protection is disabled — no reason to set up tap
+            logger.warn('No forwarders loaded and PII protection disabled — extension will not tap MCP servers');
             return [];
         }
         

@@ -1,9 +1,9 @@
 {
     "name": "mcp-audit-extension",
     "displayName": "MCP Audit",
-    "description": "Audit and log all GitHub Copilot MCP tool calls in VSCode with ease.",
+    "description": "Audit, log, and block PII/GDPR/confidential data in GitHub Copilot MCP tool calls. Splunk HEC, Syslog, and file logging with real-time data protection.",
     "publisher": "Agentity",
-    "version": "1.1.8",
+    "version": "2.0.0",
     "preview": false,
     "icon": "logo.png",
     "license": "SEE LICENSE IN LICENSE",
@@ -147,6 +147,70 @@
                             }
                         ]
                     }
+                },
+                "mcpAudit.piiDetection.enabled": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Enable PII/GDPR/confidential data detection on MCP tool calls."
+                },
+                "mcpAudit.piiDetection.blockOnDetection": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Block MCP tool calls when PII/GDPR violations are detected. If false, violations are only logged."
+                },
+                "mcpAudit.piiDetection.scanRequests": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Scan outgoing MCP tool call request parameters for PII."
+                },
+                "mcpAudit.piiDetection.scanResponses": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Scan incoming MCP tool call responses for PII."
+                },
+                "mcpAudit.piiDetection.blockingSeverity": {
+                    "type": "string",
+                    "default": "high",
+                    "enum": [
+                        "critical",
+                        "high",
+                        "medium",
+                        "low"
+                    ],
+                    "description": "Minimum severity level that triggers blocking. Violations below this level are logged but not blocked."
+                },
+                "mcpAudit.piiDetection.excludePatterns": {
+                    "type": "array",
+                    "default": [],
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "List of PII pattern names to exclude from detection (e.g., 'ipv4_address', 'phone_us'). Useful for reducing false positives."
+                },
+                "mcpAudit.piiDetection.gdprKeywordDetection": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Enable detection of GDPR special category data keywords (health, biometric, racial/ethnic origin, political, religious, etc.)."
+                },
+                "mcpAudit.piiDetection.logViolations": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Log PII/GDPR violation events to all configured forwarders (Splunk HEC, Syslog, File)."
+                },
+                "mcpAudit.splunk.defaultIndex": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Default Splunk index for MCP audit events. Overrides the index in individual HEC forwarder configs if set."
+                },
+                "mcpAudit.splunk.violationIndex": {
+                    "type": "string",
+                    "default": "",
+                    "description": "Dedicated Splunk index for PII/GDPR violation events. Falls back to defaultIndex if not set."
+                },
+                "mcpAudit.splunk.violationSourcetype": {
+                    "type": "string",
+                    "default": "mcp:pii_violation",
+                    "description": "Sourcetype for PII/GDPR violation events sent to Splunk."
                 }
             }
         },

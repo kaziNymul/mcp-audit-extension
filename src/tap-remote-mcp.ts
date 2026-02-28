@@ -7,7 +7,9 @@ import {
     populateCallRequestData, 
     prefixToolDescriptions, 
     fillResultData, 
-    forwardLog 
+    forwardLog,
+    scanRequestForPII,
+    scanResponseForPII,
 } from './tap-services';
 import { Readable } from 'stream';
 import { logger } from './logger';
@@ -141,10 +143,44 @@ export function startRemoteMcpProxy() {
     /*
     * This middleware handles all HTTP requests to /[server], except for the fallbacks handled above.
     * It looks up the `server` in our `proxyConfig` and forwards the request.
+    *
+    * PII/GDPR: Requests are scanned BEFORE being proxied upstream.
+    * If confidential data is detected, the request is NEVER forwarded to the MCP server.
+    * A JSON-RPC error response is returned directly to the caller.
     */
     app.use(
         '/:server',
         (req: Request, res: Response, next) => {
+            // ── PII/GDPR: Block BEFORE the request ever leaves this process ──
+            const jsonRPCMessage = req.body;
+            if (jsonRPCMessage?.method === 'tools/call') {
+                const targetMcpServer = req.params.server;
+                const params: any = jsonRPCMessage.params;
+                const requestScan = scanRequestForPII(params?.arguments, targetMcpServer);
+
+                if (requestScan.shouldBlock) {
+                    logger.warn(`[PII] BLOCKED remote tool call ${params?.name} on ${targetMcpServer} — PII detected in request. Request NOT forwarded upstream.`);
+
+                    // Log to Splunk/forwarders with REDACTED params (no raw PII ever leaves)
+                    const record: Partial<LogRecord> = populateCallRequestData(targetMcpServer, params);
+                    record.params = '[REDACTED — PII/GDPR violation detected in request parameters]';
+                    record.result = '[BLOCKED — request not forwarded]';
+                    forwardLog(record as LogRecord);
+
+                    // Return JSON-RPC error directly — request never reaches MCP server
+                    const blockedResponse = {
+                        jsonrpc: '2.0',
+                        id: jsonRPCMessage.id,
+                        result: {
+                            content: [{ type: 'text', text: `[MCP Audit] Tool call BLOCKED: PII/GDPR violation detected in request. ${requestScan.summary}` }],
+                            isError: true,
+                        },
+                    };
+                    res.status(200).json(blockedResponse);
+                    return; // Do NOT proxy
+                }
+            }
+
             // This is a fix taken from https://github.com/chimurai/http-proxy-middleware/issues/472#issuecomment-2623306291
             // Essentially the proxy is called with buffer and headers guaranateed to be ready, avoiding race conditions
             const contentType = req.header('Content-Type');
@@ -183,6 +219,8 @@ export function startRemoteMcpProxy() {
             const eventId: number = req.body.id;
             const params: any = req.body.params;
             
+            // PII request scanning already happened in the middleware above, before proxying.
+            // If we reach here, the request was clean. Just store the record for response matching.
             const record: Partial<LogRecord> = populateCallRequestData(targetMcpServer, params);
             
             // Store the call record, to be completed once the response is received
@@ -247,6 +285,26 @@ export function startRemoteMcpProxy() {
                     // This is the response to a tool call which was previously sent
                     // First remove the key from the map because a response was matched and it might be re-used in the future
                     toolCallRecords.delete(key);
+
+                    // ── PII/GDPR check on RESPONSE data ──
+                    // (Request PII scan already happened pre-proxy; if we're here, request was clean)
+                    const responseScan = scanResponseForPII(
+                        jsonRPCMessage.result,
+                        toolCallRecord.toolName || 'unknown',
+                        targetMcpServer
+                    );
+                    if (responseScan.shouldBlock) {
+                        logger.warn(`[PII] BLOCKED remote response from ${targetMcpServer}.${toolCallRecord.toolName} — PII in response`);
+                        // Replace response with error — PII never reaches the IDE/user
+                        jsonRPCMessage.result = {
+                            content: [{ type: 'text', text: `[MCP Audit] Response BLOCKED: PII/GDPR violation detected in response data. ${responseScan.summary}` }],
+                            isError: true,
+                        };
+                        // Log to Splunk with REDACTED result — raw PII never goes to forwarders
+                        toolCallRecord.result = '[REDACTED — PII/GDPR violation in response]';
+                        forwardLog(toolCallRecord as LogRecord);
+                        return jsonRPCMessage;
+                    }
                     
                     fillResultData(jsonRPCMessage.result, toolCallRecord);
                     // Forward the log to all registered log forwarders
