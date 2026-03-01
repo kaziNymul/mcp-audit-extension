@@ -1,8 +1,8 @@
 {
-    "name": "mcp-audit-extension",
-    "displayName": "MCP Audit",
+    "name": "mcp-audit-pii-guard",
+    "displayName": "MCP Audit PII Guard",
     "description": "Audit, log, and block PII/GDPR/confidential data in GitHub Copilot MCP tool calls. Splunk HEC, Syslog, and file logging with real-time data protection.",
-    "publisher": "Agentity",
+    "publisher": "kazi08",
     "version": "2.0.0",
     "preview": false,
     "icon": "logo.png",

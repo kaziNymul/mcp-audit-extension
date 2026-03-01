@@ -7,5 +7,14 @@
         "windsurf": false,
         "cursor-global": false,
         "cursor-workspace": false
+    },
+    "mcp": {
+        "servers": {
+            "echo-test": {
+                "type": "stdio",
+                "command": "node",
+                "args": ["/mnt/e/mcp_audit/test-mcp-server.js"]
+            }
+        }
     }
 }

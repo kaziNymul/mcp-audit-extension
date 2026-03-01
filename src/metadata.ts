@@ -151,10 +151,79 @@ export function getVSCodeFolder() {
         case 'darwin':
             return path.join(os.homedir(), 'Library', 'Application Support', 'Code', 'User');
 
-        case 'linux':
+        case 'linux': {
+            // Detect WSL: VS Code settings live on the Windows side
+            const isWSL = isRunningInWSL();
+            if (isWSL) {
+                const winAppData = getWindowsAppDataInWSL();
+                if (winAppData) {
+                    return path.join(winAppData, 'Code', 'User');
+                }
+            }
             return path.join(os.homedir(), '.config', 'Code', 'User');
+        }
 
         default:
             throw new Error('Unsupported platform');
     }
+}
+
+/**
+ * Detect if running inside Windows Subsystem for Linux.
+ */
+function isRunningInWSL(): boolean {
+    try {
+        const release = os.release().toLowerCase();
+        if (release.includes('microsoft') || release.includes('wsl')) {
+            return true;
+        }
+        // Fallback: check /proc/version
+        const fs = require('fs');
+        const procVersion = fs.readFileSync('/proc/version', 'utf-8').toLowerCase();
+        return procVersion.includes('microsoft') || procVersion.includes('wsl');
+    } catch {
+        return false;
+    }
+}
+
+/**
+ * Resolve the Windows APPDATA path from inside WSL.
+ * Tries common user profile locations under /mnt/c/Users/.
+ */
+function getWindowsAppDataInWSL(): string | null {
+    const fs = require('fs');
+    try {
+        // Method 1: Use cmd.exe to get APPDATA
+        const result = execSync('cmd.exe /C "echo %APPDATA%" 2>/dev/null', { encoding: 'utf-8' }).trim();
+        if (result && !result.includes('%APPDATA%')) {
+            // Convert Windows path (C:\Users\HP\AppData\Roaming) to WSL path (/mnt/c/Users/HP/AppData/Roaming)
+            const wslPath = result
+                .replace(/\r/g, '')
+                .replace(/^([A-Za-z]):/, (_, drive: string) => `/mnt/${drive.toLowerCase()}`)
+                .replace(/\\/g, '/');
+            if (fs.existsSync(wslPath)) {
+                return wslPath;
+            }
+        }
+    } catch { /* cmd.exe not available */ }
+
+    try {
+        // Method 2: Scan /mnt/c/Users/*/AppData/Roaming for Code folder
+        const usersDir = '/mnt/c/Users';
+        if (fs.existsSync(usersDir)) {
+            const users: string[] = fs.readdirSync(usersDir);
+            for (const user of users) {
+                if (user === 'Public' || user === 'Default' || user === 'Default User' || user === 'All Users') {
+                    continue;
+                }
+                const appData = path.join(usersDir, user, 'AppData', 'Roaming');
+                const codeDir = path.join(appData, 'Code', 'User');
+                if (fs.existsSync(codeDir)) {
+                    return appData;
+                }
+            }
+        }
+    } catch { /* /mnt/c not available */ }
+
+    return null;
 }

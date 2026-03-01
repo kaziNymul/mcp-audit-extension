@@ -1,0 +1,465 @@
+<mxfile host="app.diagrams.net" modified="2026-02-28T00:00:00.000Z" agent="MCP Audit PII Guard" version="24.0.0" type="device">
+  <diagram id="overview" name="Architecture Overview">
+    <mxGraphModel dx="1800" dy="1100" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1920" pageHeight="1080" math="0" shadow="1">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Title -->
+        <mxCell id="title1" value="&lt;font style=&quot;font-size: 28px;&quot;&gt;&lt;b&gt;MCP Audit PII Guard — Architecture Overview&lt;/b&gt;&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size: 14px; color: #666;&quot;&gt;Real-time PII/GDPR Data Protection for GitHub Copilot MCP Tool Calls&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="460" y="20" width="600" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- ======================== ROW 1: Developer & IDE ======================== -->
+
+        <!-- Developer Icon -->
+        <mxCell id="dev1" value="&lt;b&gt;Developer&lt;/b&gt;&lt;br&gt;Using GitHub Copilot" style="shape=person;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;fontStyle=0;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="80" y="160" width="100" height="120" as="geometry"/>
+        </mxCell>
+
+        <!-- VS Code IDE -->
+        <mxCell id="ide1" value="&lt;b style=&quot;font-size: 16px;&quot;&gt;VS Code IDE&lt;/b&gt;&lt;br&gt;&lt;br&gt;GitHub Copilot Agent Mode&lt;br&gt;MCP Tool Calls" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#007ACC;fontColor=#ffffff;strokeColor=#005A9E;fontSize=12;shadow=1;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="260" y="160" width="200" height="120" as="geometry"/>
+        </mxCell>
+
+        <!-- Arrow: Dev → IDE -->
+        <mxCell id="e1" value="Writes code,&lt;br&gt;uses AI tools" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#6c8ebf;fontSize=10;" edge="1" parent="1" source="dev1" target="ide1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- ======================== MCP AUDIT EXTENSION (BIG BOX) ======================== -->
+        <mxCell id="extbox" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#333333;strokeWidth=3;dashed=1;dashPattern=8 4;arcSize=6;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="540" y="110" width="820" height="540" as="geometry"/>
+        </mxCell>
+        <mxCell id="extlabel" value="&lt;font style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;🛡️ MCP Audit PII Guard Extension&lt;/b&gt;&lt;/font&gt;&lt;br&gt;&lt;font color=&quot;#888&quot;&gt;Runs entirely inside VS Code — nothing leaves the machine unless configured&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=top;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="690" y="115" width="520" height="50" as="geometry"/>
+        </mxCell>
+
+        <!-- Tapped Server (Local - stdio) -->
+        <mxCell id="tap_local" value="&lt;b&gt;Tapped Server&lt;/b&gt;&lt;br&gt;(Local / stdio)&lt;br&gt;&lt;br&gt;&lt;font color=&quot;#666&quot; style=&quot;font-size: 10px;&quot;&gt;tap-local-mcp.ts&lt;br&gt;ToolTappingClient&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1a1a40;fontColor=#79b8ff;strokeColor=#007ACC;strokeWidth=2;fontSize=12;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="580" y="190" width="170" height="100" as="geometry"/>
+        </mxCell>
+
+        <!-- Tapped Server (Remote - HTTP proxy) -->
+        <mxCell id="tap_remote" value="&lt;b&gt;Tapped Server&lt;/b&gt;&lt;br&gt;(Remote / HTTP Proxy)&lt;br&gt;&lt;br&gt;&lt;font color=&quot;#666&quot; style=&quot;font-size: 10px;&quot;&gt;tap-remote-mcp.ts&lt;br&gt;Express + http-proxy&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1a1a40;fontColor=#79b8ff;strokeColor=#007ACC;strokeWidth=2;fontSize=12;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="580" y="310" width="170" height="100" as="geometry"/>
+        </mxCell>
+
+        <!-- Arrow: IDE → Tapped Local -->
+        <mxCell id="e2" value="MCP Request" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;exitX=1;exitY=0.3;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#007ACC;fontSize=10;" edge="1" parent="1" source="ide1" target="tap_local">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Arrow: IDE → Tapped Remote -->
+        <mxCell id="e3" value="MCP Request" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;exitX=1;exitY=0.7;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#007ACC;fontSize=10;" edge="1" parent="1" source="ide1" target="tap_remote">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- ======================== PII SCANNER ======================== -->
+        <mxCell id="pii_scan" value="&lt;b style=&quot;font-size: 16px;&quot;&gt;🔍 PII / GDPR Scanner&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size: 11px;&quot;&gt;20+ Detection Patterns:&lt;br&gt;SSN • Credit Cards • IBAN&lt;br&gt;Email • Phone • IP Address&lt;br&gt;API Keys • Private Keys • JWT&lt;br&gt;AWS Secrets • GitHub Tokens&lt;br&gt;Passwords • DOB&lt;br&gt;&lt;br&gt;&lt;b&gt;GDPR Special Categories:&lt;/b&gt;&lt;br&gt;Health • Biometric • Racial&lt;br&gt;Political • Religious • Sexual&lt;br&gt;Criminal Records&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;fontSize=12;shadow=1;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="810" y="175" width="210" height="250" as="geometry"/>
+        </mxCell>
+
+        <!-- Arrow: Tap Local → PII Scanner -->
+        <mxCell id="e4" value="Scan" style="edgeStyle=orthogonalEdgeStyle;rounded=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.25;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#d6b656;fontSize=10;" edge="1" parent="1" source="tap_local" target="pii_scan">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Arrow: Tap Remote → PII Scanner -->
+        <mxCell id="e5" value="Scan" style="edgeStyle=orthogonalEdgeStyle;rounded=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#d6b656;fontSize=10;" edge="1" parent="1" source="tap_remote" target="pii_scan">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- ======================== DECISION: PII Found? ======================== -->
+        <mxCell id="decision" value="&lt;b&gt;PII&lt;br&gt;Found?&lt;/b&gt;" style="rhombus;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;strokeWidth=2;fontSize=14;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="870" y="470" width="100" height="90" as="geometry"/>
+        </mxCell>
+
+        <!-- Arrow: Scanner → Decision -->
+        <mxCell id="e6" value="" style="exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#d6b656;" edge="1" parent="1" source="pii_scan" target="decision">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- ======================== BLOCKED PATH (LEFT) ======================== -->
+        <mxCell id="blocked" value="&lt;b style=&quot;font-size: 14px; color: #fff;&quot;&gt;⛔ BLOCKED&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;font color=&quot;#fdd&quot;&gt;Request rejected&lt;br&gt;Error returned to IDE&lt;br&gt;&lt;b&gt;Data NEVER reaches&lt;br&gt;MCP server&lt;/b&gt;&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e74c3c;strokeColor=#c0392b;strokeWidth=2;fontSize=12;shadow=1;fontColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="580" y="470" width="180" height="120" as="geometry"/>
+        </mxCell>
+
+        <!-- Arrow: Decision → Blocked (YES) -->
+        <mxCell id="e7" value="&lt;b&gt;YES&lt;/b&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=3;strokeColor=#e74c3c;fontSize=12;fontColor=#e74c3c;fontStyle=1;" edge="1" parent="1" source="decision" target="blocked">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Arrow: Blocked → back to IDE -->
+        <mxCell id="e_blocked_ide" value="Error response" style="edgeStyle=orthogonalEdgeStyle;rounded=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#e74c3c;fontSize=10;dashed=1;dashPattern=6 3;" edge="1" parent="1" source="blocked" target="ide1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="360" y="530"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- ======================== CLEAN PATH (RIGHT) → MCP SERVER ======================== -->
+        <mxCell id="mcp_server" value="&lt;b style=&quot;font-size: 15px;&quot;&gt;MCP Server&lt;/b&gt;&lt;br&gt;&lt;br&gt;Executes tool call&lt;br&gt;Returns response" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#27ae60;fontColor=#ffffff;strokeColor=#1e8449;strokeWidth=2;fontSize=12;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="1080" y="475" width="170" height="100" as="geometry"/>
+        </mxCell>
+
+        <!-- Arrow: Decision → MCP Server (NO) -->
+        <mxCell id="e8" value="&lt;b&gt;NO — Clean&lt;/b&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=3;strokeColor=#27ae60;fontSize=12;fontColor=#27ae60;fontStyle=1;" edge="1" parent="1" source="decision" target="mcp_server">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Response scan label -->
+        <mxCell id="resp_scan" value="&lt;font style=&quot;font-size: 11px;&quot;&gt;🔍 Response also scanned&lt;br&gt;PII in response → Redacted&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="1080" y="580" width="170" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- ======================== ROW 2: LOG PIPELINE ======================== -->
+
+        <!-- Title for log section -->
+        <mxCell id="log_title" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;&lt;b&gt;📊 Log Pipeline (Sanitized — No PII)&lt;/b&gt;&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="620" y="680" width="310" height="30" as="geometry"/>
+        </mxCell>
+
+        <!-- Redact Safety Net -->
+        <mxCell id="redact" value="&lt;b&gt;🔒 redactRecordForLog()&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px;&quot;&gt;Final safety net — strips ANY&lt;br&gt;remaining PII from params,&lt;br&gt;results, and errors before&lt;br&gt;forwarding to any destination&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;strokeWidth=2;fontSize=12;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="590" y="720" width="220" height="120" as="geometry"/>
+        </mxCell>
+
+        <!-- Splunk HEC -->
+        <mxCell id="splunk" value="&lt;b style=&quot;font-size: 14px;&quot;&gt;Splunk HEC&lt;/b&gt;&lt;br&gt;&lt;br&gt;Token + Index (optional)&lt;br&gt;sourcetype: mcp:tool_call&lt;br&gt;&lt;font color=&quot;#666&quot; style=&quot;font-size: 10px;&quot;&gt;No PII ever reaches Splunk&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#65A637;fontColor=#ffffff;strokeColor=#4A8C1C;strokeWidth=2;fontSize=11;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="90" y="730" width="190" height="110" as="geometry"/>
+        </mxCell>
+
+        <!-- Syslog / CEF -->
+        <mxCell id="syslog" value="&lt;b style=&quot;font-size: 14px;&quot;&gt;Syslog / CEF&lt;/b&gt;&lt;br&gt;&lt;br&gt;SIEM Integration&lt;br&gt;TCP / UDP / TLS&lt;br&gt;&lt;font color=&quot;#666&quot; style=&quot;font-size: 10px;&quot;&gt;RFC 5424 compliant&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontSize=11;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="310" y="730" width="170" height="110" as="geometry"/>
+        </mxCell>
+
+        <!-- File Logger -->
+        <mxCell id="filelog" value="&lt;b style=&quot;font-size: 14px;&quot;&gt;File Logger&lt;/b&gt;&lt;br&gt;&lt;br&gt;Auto-configured&lt;br&gt;on first install&lt;br&gt;&lt;font color=&quot;#666&quot; style=&quot;font-size: 10px;&quot;&gt;VS Code log view panel&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;fontSize=11;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="880" y="730" width="170" height="110" as="geometry"/>
+        </mxCell>
+
+        <!-- Violation Index -->
+        <mxCell id="violation" value="&lt;b style=&quot;font-size: 13px;&quot;&gt;Violation Index&lt;/b&gt;&lt;br&gt;&lt;br&gt;PII violation events&lt;br&gt;Audit trail&lt;br&gt;&lt;font color=&quot;#666&quot; style=&quot;font-size: 10px;&quot;&gt;sourcetype: mcp:pii_violation&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;strokeWidth=2;fontSize=11;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="730" width="190" height="110" as="geometry"/>
+        </mxCell>
+
+        <!-- Arrows: Redact → forwarders -->
+        <mxCell id="ef1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#65A637;" edge="1" parent="1" source="redact" target="splunk">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="ef2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;exitX=0;exitY=0.3;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#6c8ebf;" edge="1" parent="1" source="redact" target="syslog">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="560" y="756"/>
+              <mxPoint x="560" y="710"/>
+              <mxPoint x="395" y="710"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ef3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#d6b656;" edge="1" parent="1" source="redact" target="filelog">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="ef4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;exitX=1;exitY=0.3;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#b85450;" edge="1" parent="1" source="redact" target="violation">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="840" y="756"/>
+              <mxPoint x="840" y="710"/>
+              <mxPoint x="1195" y="710"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- ======================== LEGEND ======================== -->
+        <mxCell id="legend_box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f9f9f9;strokeColor=#999;strokeWidth=1;arcSize=8;" vertex="1" parent="1">
+          <mxGeometry x="60" y="880" width="1280" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend_title" value="&lt;b&gt;Legend&lt;/b&gt;" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="80" y="885" width="60" height="30" as="geometry"/>
+        </mxCell>
+
+        <!-- Legend items -->
+        <mxCell id="leg1_dot" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#27ae60;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="80" y="920" width="16" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="leg1_text" value="Clean data flow" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="100" y="915" width="100" height="26" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="leg2_dot" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#e74c3c;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="230" y="920" width="16" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="leg2_text" value="PII blocked / redacted" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="250" y="915" width="140" height="26" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="leg3_dot" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d6b656;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="420" y="920" width="16" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="leg3_text" value="PII scanning" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="440" y="915" width="90" height="26" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="leg4_dot" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#9673a6;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="560" y="920" width="16" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="leg4_text" value="Log pipeline" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="580" y="915" width="80" height="26" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="leg5_text" value="&lt;font style=&quot;font-size: 11px;&quot;&gt;✅ Zero-config PII blocking on install &amp;nbsp;|&amp;nbsp; ✅ Splunk index optional &amp;nbsp;|&amp;nbsp; ✅ 20+ detection patterns &amp;nbsp;|&amp;nbsp; ✅ GDPR special categories &amp;nbsp;|&amp;nbsp; ✅ Runs 100% locally&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="700" y="918" width="630" height="30" as="geometry"/>
+        </mxCell>
+
+        <!-- ======================== CALLOUT BOXES ======================== -->
+
+        <!-- Zero Config callout -->
+        <mxCell id="callout1" value="&lt;b&gt;⚡ Zero Configuration&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px;&quot;&gt;PII blocking activates&lt;br&gt;immediately on install.&lt;br&gt;No setup required.&lt;/font&gt;" style="shape=callout;whiteSpace=wrap;html=1;perimeter=calloutPerimeter;size=20;position=0.5;base=20;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;shadow=1;position2=0.75;" vertex="1" parent="1">
+          <mxGeometry x="80" y="420" width="160" height="100" as="geometry"/>
+        </mxCell>
+
+        <!-- Data Never Leaves callout -->
+        <mxCell id="callout2" value="&lt;b&gt;🔐 Data Protection&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px;&quot;&gt;PII data is blocked&lt;br&gt;BEFORE it reaches the&lt;br&gt;MCP server. Logs are&lt;br&gt;redacted BEFORE Splunk.&lt;/font&gt;" style="shape=callout;whiteSpace=wrap;html=1;perimeter=calloutPerimeter;size=20;position=0.5;base=20;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;shadow=1;position2=0.25;" vertex="1" parent="1">
+          <mxGeometry x="80" y="560" width="170" height="110" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <diagram id="dataflow" name="Data Flow Detail">
+    <mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1920" pageHeight="1080" math="0" shadow="1">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Title -->
+        <mxCell id="df_title" value="&lt;font style=&quot;font-size: 24px;&quot;&gt;&lt;b&gt;Data Flow — Request &amp; Response Lifecycle&lt;/b&gt;&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="530" y="30" width="460" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- Step boxes in a horizontal flow -->
+
+        <!-- Step 1: Request -->
+        <mxCell id="s1" value="&lt;b&gt;1. Request&lt;/b&gt;&lt;br&gt;&lt;br&gt;Copilot makes an&lt;br&gt;MCP tool call with&lt;br&gt;parameters" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontSize=12;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="120" width="160" height="120" as="geometry"/>
+        </mxCell>
+
+        <!-- Step 2: Intercept -->
+        <mxCell id="s2" value="&lt;b&gt;2. Intercept&lt;/b&gt;&lt;br&gt;&lt;br&gt;Tapped server&lt;br&gt;captures the request&lt;br&gt;(stdio or HTTP)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1a1a40;fontColor=#79b8ff;strokeColor=#007ACC;strokeWidth=2;fontSize=12;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="290" y="120" width="160" height="120" as="geometry"/>
+        </mxCell>
+
+        <!-- Step 3: Scan Request -->
+        <mxCell id="s3" value="&lt;b&gt;3. Scan Request&lt;/b&gt;&lt;br&gt;&lt;br&gt;PII detector scans&lt;br&gt;all parameters for&lt;br&gt;confidential data" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;fontSize=12;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="520" y="120" width="160" height="120" as="geometry"/>
+        </mxCell>
+
+        <!-- Step 4a: Block -->
+        <mxCell id="s4a" value="&lt;b&gt;4a. BLOCK&lt;/b&gt;&lt;br&gt;&lt;br&gt;PII detected →&lt;br&gt;Return error to IDE&lt;br&gt;&lt;b&gt;Data never sent&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e74c3c;fontColor=#ffffff;strokeColor=#c0392b;strokeWidth=2;fontSize=12;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="520" y="310" width="160" height="120" as="geometry"/>
+        </mxCell>
+
+        <!-- Step 4b: Allow -->
+        <mxCell id="s4b" value="&lt;b&gt;4b. Forward&lt;/b&gt;&lt;br&gt;&lt;br&gt;Clean request →&lt;br&gt;Send to real&lt;br&gt;MCP server" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#27ae60;fontColor=#ffffff;strokeColor=#1e8449;strokeWidth=2;fontSize=12;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="750" y="120" width="160" height="120" as="geometry"/>
+        </mxCell>
+
+        <!-- Step 5: Response -->
+        <mxCell id="s5" value="&lt;b&gt;5. Scan Response&lt;/b&gt;&lt;br&gt;&lt;br&gt;MCP server response&lt;br&gt;scanned for PII&lt;br&gt;Redacted if found" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;fontSize=12;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="980" y="120" width="160" height="120" as="geometry"/>
+        </mxCell>
+
+        <!-- Step 6: Redact Logs -->
+        <mxCell id="s6" value="&lt;b&gt;6. Redact Logs&lt;/b&gt;&lt;br&gt;&lt;br&gt;redactRecordForLog()&lt;br&gt;strips ALL remaining&lt;br&gt;PII from log record" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;strokeWidth=2;fontSize=12;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="1210" y="120" width="160" height="120" as="geometry"/>
+        </mxCell>
+
+        <!-- Step 7: Forward -->
+        <mxCell id="s7" value="&lt;b&gt;7. Forward Logs&lt;/b&gt;&lt;br&gt;&lt;br&gt;Sanitized records sent&lt;br&gt;to Splunk, Syslog,&lt;br&gt;or File destinations" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;strokeWidth=2;fontSize=12;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="1440" y="120" width="160" height="120" as="geometry"/>
+        </mxCell>
+
+        <!-- Arrows between steps -->
+        <mxCell id="de1" style="exitX=1;exitY=0.5;entryX=0;entryY=0.5;strokeWidth=2;strokeColor=#333;" edge="1" parent="1" source="s1" target="s2"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="de2" style="exitX=1;exitY=0.5;entryX=0;entryY=0.5;strokeWidth=2;strokeColor=#333;" edge="1" parent="1" source="s2" target="s3"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="de3" value="PII Found" style="exitX=0.5;exitY=1;entryX=0.5;entryY=0;strokeWidth=2;strokeColor=#e74c3c;fontColor=#e74c3c;fontSize=10;" edge="1" parent="1" source="s3" target="s4a"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="de4" value="Clean" style="exitX=1;exitY=0.5;entryX=0;entryY=0.5;strokeWidth=2;strokeColor=#27ae60;fontColor=#27ae60;fontSize=10;" edge="1" parent="1" source="s3" target="s4b"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="de5" style="exitX=1;exitY=0.5;entryX=0;entryY=0.5;strokeWidth=2;strokeColor=#333;" edge="1" parent="1" source="s4b" target="s5"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="de6" style="exitX=1;exitY=0.5;entryX=0;entryY=0.5;strokeWidth=2;strokeColor=#333;" edge="1" parent="1" source="s5" target="s6"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="de7" style="exitX=1;exitY=0.5;entryX=0;entryY=0.5;strokeWidth=2;strokeColor=#333;" edge="1" parent="1" source="s6" target="s7"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- ======================== DETECTION PATTERNS TABLE ======================== -->
+        <mxCell id="table_title" value="&lt;font style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;Detection Patterns (20+)&lt;/b&gt;&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="200" y="490" width="220" height="30" as="geometry"/>
+        </mxCell>
+
+        <!-- Category boxes -->
+        <mxCell id="cat1" value="&lt;b&gt;🆔 Identity&lt;/b&gt;&lt;br&gt;SSN&lt;br&gt;Date of Birth" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="540" width="130" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="cat2" value="&lt;b&gt;💳 Financial&lt;/b&gt;&lt;br&gt;Credit Cards&lt;br&gt;IBAN" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="210" y="540" width="130" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="cat3" value="&lt;b&gt;📧 Contact&lt;/b&gt;&lt;br&gt;Email&lt;br&gt;Phone • IP" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="360" y="540" width="130" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="cat4" value="&lt;b&gt;🔑 Credentials&lt;/b&gt;&lt;br&gt;Passwords&lt;br&gt;API Keys • Private Keys" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="640" width="160" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="cat5" value="&lt;b&gt;☁️ Cloud Secrets&lt;/b&gt;&lt;br&gt;AWS Access Keys&lt;br&gt;GitHub Tokens • JWT" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="240" y="640" width="160" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="cat6" value="&lt;b&gt;🏛️ GDPR Special Categories&lt;/b&gt;&lt;br&gt;Health • Biometric • Racial/Ethnic&lt;br&gt;Political • Religious • Sexual&lt;br&gt;Criminal Records • Trade Union" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="420" y="640" width="230" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- ======================== KEY FEATURES ======================== -->
+        <mxCell id="feat_title" value="&lt;font style=&quot;font-size: 18px;&quot;&gt;&lt;b&gt;Key Features&lt;/b&gt;&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="940" y="490" width="140" height="30" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="f1" value="✅ &lt;b&gt;Zero Configuration&lt;/b&gt; — Works immediately on install" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;shadow=1;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="780" y="540" width="380" height="36" as="geometry"/>
+        </mxCell>
+        <mxCell id="f2" value="✅ &lt;b&gt;Pre-flight Blocking&lt;/b&gt; — PII blocked BEFORE reaching server" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;shadow=1;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="780" y="586" width="380" height="36" as="geometry"/>
+        </mxCell>
+        <mxCell id="f3" value="✅ &lt;b&gt;Log Redaction&lt;/b&gt; — No PII ever reaches Splunk / SIEM" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;shadow=1;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="780" y="632" width="380" height="36" as="geometry"/>
+        </mxCell>
+        <mxCell id="f4" value="✅ &lt;b&gt;100% Local&lt;/b&gt; — All scanning runs on the developer's machine" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;shadow=1;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="780" y="678" width="380" height="36" as="geometry"/>
+        </mxCell>
+        <mxCell id="f5" value="✅ &lt;b&gt;Multi-destination&lt;/b&gt; — Splunk HEC, Syslog/CEF, File logging" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;shadow=1;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="780" y="724" width="380" height="36" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+
+  <diagram id="pii_patterns" name="PII Detection Patterns">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1920" pageHeight="1080" math="0" shadow="1">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Title -->
+        <mxCell id="pp_title" value="&lt;font style=&quot;font-size: 24px;&quot;&gt;&lt;b&gt;PII / GDPR Detection — What Gets Caught&lt;/b&gt;&lt;/font&gt;&lt;br&gt;&lt;font style=&quot;font-size: 13px; color: #888;&quot;&gt;Every MCP tool call request and response is scanned against all patterns below&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="510" y="20" width="500" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Row 1: PII Patterns -->
+        <mxCell id="pp_header1" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;&lt;b&gt;PII Patterns (Regex-based)&lt;/b&gt;&lt;/font&gt;" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="60" y="100" width="210" height="30" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="p1" value="&lt;b&gt;SSN&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px; color: #888;&quot;&gt;123-45-6789&lt;br&gt;Severity: Critical&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="150" width="130" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="p2" value="&lt;b&gt;Credit Cards&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px; color: #888;&quot;&gt;Visa, MC, Amex, Discover&lt;br&gt;Severity: Critical&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="210" y="150" width="160" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="p3" value="&lt;b&gt;IBAN&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px; color: #888;&quot;&gt;International bank number&lt;br&gt;Severity: Critical&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="390" y="150" width="160" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="p4" value="&lt;b&gt;Email&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px; color: #888;&quot;&gt;user@domain.com&lt;br&gt;Severity: High&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="570" y="150" width="130" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="p5" value="&lt;b&gt;Phone&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px; color: #888;&quot;&gt;+1-234-567-8901&lt;br&gt;Severity: High&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="720" y="150" width="130" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="p6" value="&lt;b&gt;IP Address&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px; color: #888;&quot;&gt;192.168.1.1&lt;br&gt;Severity: Medium&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="870" y="150" width="130" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="p7" value="&lt;b&gt;Date of Birth&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px; color: #888;&quot;&gt;01/15/1990&lt;br&gt;Severity: High&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="1020" y="150" width="130" height="70" as="geometry"/>
+        </mxCell>
+
+        <!-- Row 2: Credentials -->
+        <mxCell id="pp_header2" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;&lt;b&gt;Credentials &amp; Secrets&lt;/b&gt;&lt;/font&gt;" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="60" y="250" width="180" height="30" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="c1" value="&lt;b&gt;Private Keys&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px; color: #888;&quot;&gt;RSA, EC, DSA&lt;br&gt;BEGIN PRIVATE KEY&lt;br&gt;Severity: Critical&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="300" width="150" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="c2" value="&lt;b&gt;AWS Keys&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px; color: #888;&quot;&gt;AKIA... access keys&lt;br&gt;Severity: Critical&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="230" y="300" width="150" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="c3" value="&lt;b&gt;GitHub Tokens&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px; color: #888;&quot;&gt;ghp_... tokens&lt;br&gt;Severity: Critical&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="400" y="300" width="150" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="c4" value="&lt;b&gt;JWT Tokens&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px; color: #888;&quot;&gt;eyJ... tokens&lt;br&gt;Severity: High&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="570" y="300" width="150" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="c5" value="&lt;b&gt;API Keys&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px; color: #888;&quot;&gt;api_key = sk_live_...&lt;br&gt;Severity: Critical&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="740" y="300" width="150" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="c6" value="&lt;b&gt;Passwords&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px; color: #888;&quot;&gt;password = &quot;...&quot;&lt;br&gt;Severity: Critical&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="910" y="300" width="150" height="80" as="geometry"/>
+        </mxCell>
+
+        <!-- Row 3: GDPR -->
+        <mxCell id="pp_header3" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;&lt;b&gt;GDPR Special Category Keywords (Article 9)&lt;/b&gt;&lt;/font&gt;" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="60" y="420" width="370" height="30" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="g1" value="&lt;b&gt;🏥 Health / Medical&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px;&quot;&gt;diagnosis, medical record,&lt;br&gt;prescription, patient,&lt;br&gt;health condition, symptom&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="470" width="180" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="g2" value="&lt;b&gt;🧬 Biometric&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px;&quot;&gt;fingerprint, retina scan,&lt;br&gt;facial recognition,&lt;br&gt;voice print, DNA&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="260" y="470" width="180" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="g3" value="&lt;b&gt;🌍 Racial / Ethnic&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px;&quot;&gt;racial origin, ethnic group,&lt;br&gt;ethnicity, nationality&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="460" y="470" width="180" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="g4" value="&lt;b&gt;🏛️ Political&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px;&quot;&gt;political opinion, party&lt;br&gt;membership, political&lt;br&gt;affiliation&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="660" y="470" width="180" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="g5" value="&lt;b&gt;⛪ Religious&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px;&quot;&gt;religious belief,&lt;br&gt;philosophical belief,&lt;br&gt;faith, denomination&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="860" y="470" width="180" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="g6" value="&lt;b&gt;⚖️ Criminal Records&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px;&quot;&gt;criminal record, conviction,&lt;br&gt;arrest record, offense,&lt;br&gt;criminal history&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="580" width="180" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="g7" value="&lt;b&gt;💜 Sexual Orientation&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px;&quot;&gt;sexual orientation,&lt;br&gt;gender identity,&lt;br&gt;sex life data&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="260" y="580" width="180" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="g8" value="&lt;b&gt;🏭 Trade Union&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px;&quot;&gt;trade union membership,&lt;br&gt;union affiliation,&lt;br&gt;collective bargaining&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;shadow=1;" vertex="1" parent="1">
+          <mxGeometry x="460" y="580" width="180" height="90" as="geometry"/>
+        </mxCell>
+
+        <!-- Severity Legend -->
+        <mxCell id="sev_box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f9f9f9;strokeColor=#999;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="700" y="580" width="380" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="sev_title" value="&lt;b&gt;Severity Levels&lt;/b&gt;" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="720" y="585" width="110" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="sev1" value="" style="ellipse;fillColor=#e74c3c;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="720" y="618" width="12" height="12" as="geometry"/>
+        </mxCell>
+        <mxCell id="sev1t" value="&lt;b&gt;Critical&lt;/b&gt; — SSN, Credit Cards, Private Keys, AWS Keys" style="text;html=1;align=left;verticalAlign=middle;fontSize=10;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="738" y="612" width="320" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="sev2" value="" style="ellipse;fillColor=#f39c12;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="720" y="638" width="12" height="12" as="geometry"/>
+        </mxCell>
+        <mxCell id="sev2t" value="&lt;b&gt;High&lt;/b&gt; — Email, Phone, JWT, GDPR Keywords" style="text;html=1;align=left;verticalAlign=middle;fontSize=10;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="738" y="632" width="320" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="sev3" value="" style="ellipse;fillColor=#3498db;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="720" y="658" width="12" height="12" as="geometry"/>
+        </mxCell>
+        <mxCell id="sev3t" value="&lt;b&gt;Medium&lt;/b&gt; — IP Address, Date of Birth" style="text;html=1;align=left;verticalAlign=middle;fontSize=10;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="738" y="652" width="320" height="22" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
